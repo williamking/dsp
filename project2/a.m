@@ -5,14 +5,6 @@ wc = (wp + ws) / 2;
 alphaP = 1 - 10 ^ (0.3 / -20);
 alphaS = 10 ^ (40 / -20);
 
-[n, Wn, beta, ftype] = kaiserord([wp, ws], [1, 0], [alphaP, alphaS]);
-
-kaiser_win = kaiser(n+1, beta);
-hamm_win = hamming(n+1);
-hann_win = hanning(n+1);
-blackman_win = blackman(n+1);
-
-wins = [hamm_win, hann_win, blackman_win, kaiser_win]
 titles = {
     'hamm impluse response',
     'hann impluse response',
@@ -27,29 +19,54 @@ titles2 = {
     'kaiser gain response'
     };
 
-M = n / 2;
-n = -M : M;
-hd = sin(wc * pi * n) ./ (pi * n);
-hd(find(n==0)) = wc;
-
-figure(1);
-plot(n, hd, '-');
-title('ideal impulse response');
-xlabel('n');
-ylabel('hd');
-
 for i = 1 : 4
-  figure(i + 1);
+  figure(i);
+  disp(i);
+  if i == 4
+    [n, Wn, beta, ftype] = kaiserord([wp, ws], [1, 0], [alphaP, alphaS]); 
+    M = n / 2;
+    win = kaiser(n+1, beta);
+    n = -M : M;
+  end
+  if i == 3
+    M = ceil(5.56 / (ws - wp))
+    n = 2 * M;
+    win = blackman(n+1);
+    n = -M : M;
+  end
+  if i == 2
+    M = ceil(3.32 / (ws - wp))
+    n = 2 * M;
+    win = hanning(n+1);
+    n = -M : M;
+  end
+  if i == 1
+    M = ceil(3.11 / (ws - wp));
+    n = 2 * M;
+    win = hamming(n+1);
+    n = -M : M;
+  end
   
-  subplot(1,2,1);
-  ht = hd .* wins(i);
+  hd = sin(wc * pi * n) ./ (pi * n);
+  hd(find(n==0)) = wc/pi;
+
+  subplot(1,3,1);
+  plot(n, hd, '-');
+  title('ideal impulse response');
+  xlabel('n');
+  ylabel('hd');
+  
+  subplot(1,3,2);
+  disp(hd);
+  disp(win)
+  ht = hd .* win';
   plot(n, ht, '-');
   title(titles(i));
   xlabel('n');
   ylabel('hd');
   grid on;
 
-  subplot(1,2,2);
+  subplot(1,3,3);
   [h, w] =freqz(ht, 1, 512);
   w = w / pi;
   h = 20 * log10(abs(h));

@@ -1,18 +1,18 @@
 alphaP = 1 - 10 ^ (0.3 / -20);
 alphaS = 10 ^ (40 / -20);
 
+wp = 3 * 2.0 / 15;
+ws = 5 * 2.0 / 15;
+wc = (wp + ws) / 2;
+
+alphaP = 1 - 10 ^ (0.3 / -20);
+alphaS = 10 ^ (40 / -20);
+
 figure(1);
 fcuts = [3.0/15*2, 5.0/15*2];
 mags = [1, 0];
 devs = [alphaP, alphaS];
-[n, Wn, beta, ftype] = kaiserord(fcuts, mags, devs);
 
-kaiser_win = kaiser(n+1, beta);
-hamm_win = hamming(n+1);
-hann_win = hanning(n+1);
-blackman_win = blackman(n+1);
-
-wins = [hamm_win, hann_win, blackman_win, kaiser_win]
 titles = {
     'hamm impluse response',
     'hann impluse response',
@@ -27,13 +27,35 @@ titles2 = {
     'kaiser gain response'
     };
 
-x = -n/2 : n/2;
 
 for i = 1 : 4
   figure(i);
   
+  if i == 4
+    [n, Wn, beta, ftype] = kaiserord([wp, ws], [1, 0], [alphaP, alphaS]); 
+    M = n / 2;
+    win = kaiser(n+1, beta);
+  end
+  if i == 3
+    M = ceil(5.56 / (ws - wp))
+    n = 2 * M;
+    win = blackman(n+1);
+  end
+  if i == 2
+    M = ceil(3.32 / (ws - wp))
+    n = 2 * M;
+    win = hanning(n+1);
+  end
+  if i == 1
+    M = ceil(3.11 / (ws - wp));
+    n = 2 * M;
+     win = hamming(n+1);
+  end
+  
+  x = -M : M;
+  
   subplot(1,2,1);
-  hh = fir1(n, Wn, ftype, kaiser(n+1, beta));
+  hh = fir1(n, Wn, ftype, win);
   plot(x, hh, '-');
   title(titles(i));
   xlabel('n');
