@@ -48,7 +48,7 @@ for i = 1 : 4
   end
   
   hd = sin(wc * pi * n) ./ (pi * n);
-  hd(find(n==0)) = wc/pi;
+  hd(find(n==0)) = wc;
 
   subplot(1,3,1);
   plot(n, hd, '-');

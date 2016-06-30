@@ -49,13 +49,13 @@ for i = 1 : 4
   if i == 1
     M = ceil(3.11 / (ws - wp));
     n = 2 * M;
-     win = hamming(n+1);
+    win = hamming(n+1);
   end
   
   x = -M : M;
   
   subplot(1,2,1);
-  hh = fir1(n, Wn, ftype, win);
+  hh = fir1(n, wc, win);
   plot(x, hh, '-');
   title(titles(i));
   xlabel('n');
